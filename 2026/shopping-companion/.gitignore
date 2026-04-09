@@ -1,0 +1,17 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+data/local_memories/
+data/products.json
+*.egg-info/
+dist/
+build/
+.DS_Store
+CLAUDE.md
+.claude/
+.claude
+blog/
+.venv/
+.env

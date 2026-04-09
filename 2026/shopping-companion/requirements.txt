@@ -1,0 +1,7 @@
+strands-agents
+strands-agents-tools[mem0-memory]
+rank_bm25
+boto3
+python-dotenv
+mem0ai
+fastapi

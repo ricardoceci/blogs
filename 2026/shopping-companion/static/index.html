@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shopping Companion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1a2744;
+    --navy-light: #243358;
+    --cream: #faf7f2;
+    --cream-dark: #f0ebe2;
+    --sand: #d4c9b0;
+    --coral: #c9614a;
+    --text: #2c2c2c;
+    --text-light: #7a7468;
+    --bubble-user: #1a2744;
+    --bubble-agent: #ffffff;
+    --border: #e8e1d6;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--cream);
+    font-family: 'Jost', sans-serif;
+    font-weight: 300;
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--navy);
+    padding: 0 2rem;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--navy-light);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .logo-mark {
+    width: 32px;
+    height: 32px;
+    border: 1.5px solid rgba(255,255,255,0.4);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logo-mark svg { width: 16px; height: 16px; }
+
+  .logo-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    color: white;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .logo-sub {
+    font-family: 'Jost', sans-serif;
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.45);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-top: 1px;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .user-badge {
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+  }
+
+  .stage-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .stage-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    transition: background 0.3s;
+  }
+
+  .stage-dot.active { background: var(--coral); }
+
+  .stage-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    transition: color 0.3s;
+  }
+
+  .stage-label.active { color: rgba(255,255,255,0.75); }
+
+  /* ── Main layout ── */
+  .layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 240px;
+    background: var(--navy);
+    border-right: 1px solid var(--navy-light);
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem 0;
+    flex-shrink: 0;
+  }
+
+  .sidebar-section {
+    padding: 0 1.25rem;
+    margin-bottom: 2rem;
+  }
+
+  .sidebar-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    margin-bottom: 0.75rem;
+  }
+
+  .user-input-row {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .sidebar input[type="text"] {
+    flex: 1;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 4px;
+    padding: 0.45rem 0.6rem;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.78rem;
+    color: white;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .sidebar input[type="text"]:focus {
+    border-color: rgba(255,255,255,0.3);
+  }
+
+  .sidebar input[type="text"]::placeholder {
+    color: rgba(255,255,255,0.25);
+  }
+
+  .btn-set {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 4px;
+    padding: 0.45rem 0.6rem;
+    color: rgba(255,255,255,0.7);
+    cursor: pointer;
+    font-size: 0.7rem;
+    font-family: 'Jost', sans-serif;
+    letter-spacing: 0.06em;
+    transition: background 0.2s;
+  }
+
+  .btn-set:hover { background: rgba(255,255,255,0.18); }
+
+  .memory-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .memory-item {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.45);
+    line-height: 1.4;
+    padding-left: 0.5rem;
+    border-left: 1px solid rgba(255,255,255,0.1);
+    font-style: italic;
+  }
+
+  .memory-empty {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.2);
+    font-style: italic;
+  }
+
+  .new-session-btn {
+    margin: 0 1.25rem;
+    padding: 0.6rem;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 4px;
+    color: rgba(255,255,255,0.5);
+    font-family: 'Jost', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: auto;
+  }
+
+  .new-session-btn:hover {
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.75);
+  }
+
+  /* ── Chat area ── */
+  .chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    scroll-behavior: smooth;
+  }
+
+  .messages::-webkit-scrollbar { width: 4px; }
+  .messages::-webkit-scrollbar-track { background: transparent; }
+  .messages::-webkit-scrollbar-thumb { background: var(--sand); border-radius: 2px; }
+
+  /* ── Welcome state ── */
+  .welcome {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .welcome-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    color: var(--navy);
+    line-height: 1.2;
+  }
+
+  .welcome-title em { font-style: italic; color: var(--coral); }
+
+  .welcome-sub {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    max-width: 360px;
+    line-height: 1.7;
+    letter-spacing: 0.02em;
+  }
+
+  .welcome-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-top: 0.5rem;
+  }
+
+  .chip {
+    padding: 0.4rem 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 0.75rem;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.03em;
+    background: white;
+  }
+
+  .chip:hover {
+    border-color: var(--navy);
+    color: var(--navy);
+    background: var(--cream);
+  }
+
+  /* ── Message bubbles ── */
+  .message {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    animation: fadeUp 0.3s ease;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .message.user { flex-direction: row-reverse; }
+
+  .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+  }
+
+  .avatar.agent {
+    background: var(--navy);
+    color: white;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+  }
+
+  .avatar.user {
+    background: var(--cream-dark);
+    color: var(--text-light);
+  }
+
+  .bubble {
+    max-width: 72%;
+    padding: 0.9rem 1.1rem;
+    border-radius: 2px;
+    font-size: 0.85rem;
+    line-height: 1.7;
+    letter-spacing: 0.01em;
+  }
+
+  .message.agent .bubble {
+    background: white;
+    border: 1px solid var(--border);
+    border-top-left-radius: 0;
+    color: var(--text);
+  }
+
+  .message.user .bubble {
+    background: var(--navy);
+    color: rgba(255,255,255,0.9);
+    border-top-right-radius: 0;
+  }
+
+  /* Stage label on bubble */
+  .bubble-meta {
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+    opacity: 0.5;
+  }
+
+  .message.agent .bubble-meta { color: var(--navy); }
+  .message.user .bubble-meta { color: rgba(255,255,255,0.6); }
+
+  /* Confirmation prompt highlight */
+  .message.confirmation .bubble {
+    border-color: var(--coral);
+    border-left: 3px solid var(--coral);
+  }
+
+  /* Recommendation highlight */
+  .message.recommendation .bubble {
+    border-color: var(--navy);
+    border-left: 3px solid var(--navy);
+  }
+
+  /* ── Typing indicator ── */
+  .typing {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.75rem 1rem;
+    background: white;
+    border: 1px solid var(--border);
+    width: fit-content;
+    border-radius: 2px;
+    border-top-left-radius: 0;
+  }
+
+  .typing-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--sand);
+    animation: pulse 1.2s infinite;
+  }
+
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes pulse {
+    0%, 80%, 100% { opacity: 0.3; transform: scale(1); }
+    40% { opacity: 1; transform: scale(1.2); }
+  }
+
+  /* ── Confirmation bar ── */
+  .confirm-bar {
+    background: #fdf8f3;
+    border-top: 1px solid #f0e8d8;
+    padding: 0.6rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.72rem;
+    color: var(--text-light);
+    letter-spacing: 0.04em;
+  }
+
+  .confirm-bar span { font-weight: 500; color: var(--coral); }
+
+  /* ── Input area ── */
+  .input-area {
+    border-top: 1px solid var(--border);
+    background: white;
+    padding: 1rem 2rem;
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-end;
+  }
+
+  .input-wrapper {
+    flex: 1;
+    position: relative;
+  }
+
+  textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 300;
+    color: var(--text);
+    resize: none;
+    outline: none;
+    line-height: 1.5;
+    transition: border-color 0.2s;
+    min-height: 44px;
+    max-height: 120px;
+    overflow-y: auto;
+    background: var(--cream);
+  }
+
+  textarea:focus { border-color: var(--navy); background: white; }
+  textarea::placeholder { color: var(--text-light); }
+
+  .send-btn {
+    width: 44px;
+    height: 44px;
+    background: var(--navy);
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.2s;
+  }
+
+  .send-btn:hover { background: var(--navy-light); }
+  .send-btn:disabled { background: var(--sand); cursor: not-allowed; }
+
+  .send-btn svg { width: 16px; height: 16px; }
+
+  /* ── Divider ── */
+  .stage-divider {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.25rem 0;
+  }
+
+  .stage-divider::before,
+  .stage-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .stage-divider span {
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-light);
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 640px) {
+    .sidebar { display: none; }
+    .messages { padding: 1rem; }
+    .input-area { padding: 0.75rem 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M8 2L10 6H14L11 9L12 13L8 10.5L4 13L5 9L2 6H6L8 2Z" stroke="rgba(255,255,255,0.6)" stroke-width="1" fill="none"/>
+      </svg>
+    </div>
+    <div>
+      <div class="logo-text">Shopping Companion</div>
+      <div class="logo-sub">Fashion Store</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="stage-indicator" id="stageIndicator">
+      <div class="stage-dot active" id="dot1"></div>
+      <div class="stage-label active" id="label1">Your Style</div>
+      <div class="stage-dot" id="dot2"></div>
+      <div class="stage-label" id="label2">Find Items</div>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Your Profile</div>
+      <div class="user-input-row">
+        <input type="text" id="userIdInput" placeholder="user_123" value="user_123">
+        <button class="btn-set" onclick="setUserId()">Set</button>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Remembered Preferences</div>
+      <ul class="memory-list" id="memoryList">
+        <li class="memory-empty">Preferences appear after your first conversation.</li>
+      </ul>
+    </div>
+
+    <button class="new-session-btn" onclick="newSession()">↺ New Session</button>
+  </aside>
+
+  <!-- Chat -->
+  <div class="chat-area">
+    <div class="messages" id="messages">
+      <div class="welcome" id="welcome">
+        <div class="welcome-title">Hello. What are<br>you looking for <em>today?</em></div>
+        <p class="welcome-sub">I'll remember your style preferences across visits — no need to repeat your size or what you love.</p>
+        <div class="welcome-chips">
+          <div class="chip" onclick="useChip(this)">Something for a wedding</div>
+          <div class="chip" onclick="useChip(this)">Beach vacation pieces</div>
+          <div class="chip" onclick="useChip(this)">Work-to-cocktail dress</div>
+          <div class="chip" onclick="useChip(this)">Casual summer outfit</div>
+          <div class="chip" onclick="useChip(this)">Gift for someone</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="confirm-bar" id="confirmBar" style="display:none">
+      <span>Step 2 of 2</span> — Review the preferences above, then confirm or correct anything before I search the catalog.
+    </div>
+
+    <div class="input-area">
+      <div class="input-wrapper">
+        <textarea
+          id="messageInput"
+          rows="1"
+          placeholder="Tell me what you're looking for…"
+          onkeydown="handleKey(event)"
+          oninput="autoResize(this)"
+        ></textarea>
+      </div>
+      <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+        <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M13 8L3 3L5.5 8L3 13L13 8Z" fill="white"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  let sessionId = null;
+  let userId = 'user_123';
+  let currentState = 'awaiting_query';
+  let isLoading = false;
+  let hasMessages = false;
+
+  // ── UI helpers ─────────────────────────────────────────────────────────────
+
+  function setUserId() {
+    const val = document.getElementById('userIdInput').value.trim();
+    if (val) {
+      userId = val;
+      newSession();
+    }
+  }
+
+  function newSession() {
+    sessionId = null;
+    currentState = 'awaiting_query';
+    hasMessages = false;
+    document.getElementById('messages').innerHTML = '';
+    document.getElementById('confirmBar').style.display = 'none';
+    updateStageUI(1);
+    const w = document.createElement('div');
+    w.id = 'welcome';
+    w.className = 'welcome';
+    w.innerHTML = `
+      <div class="welcome-title">Hello. What are<br>you looking for <em>today?</em></div>
+      <p class="welcome-sub">I'll remember your style preferences across visits — no need to repeat your size or what you love.</p>
+      <div class="welcome-chips">
+        <div class="chip" onclick="useChip(this)">Something for a wedding</div>
+        <div class="chip" onclick="useChip(this)">Beach vacation pieces</div>
+        <div class="chip" onclick="useChip(this)">Work-to-cocktail dress</div>
+        <div class="chip" onclick="useChip(this)">Casual summer outfit</div>
+        <div class="chip" onclick="useChip(this)">Gift for someone</div>
+      </div>`;
+    document.getElementById('messages').appendChild(w);
+  }
+
+  function useChip(el) {
+    document.getElementById('messageInput').value = el.textContent;
+    sendMessage();
+  }
+
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+  }
+
+  function handleKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  }
+
+  function updateStageUI(stage) {
+    const dot1 = document.getElementById('dot1');
+    const dot2 = document.getElementById('dot2');
+    const label1 = document.getElementById('label1');
+    const label2 = document.getElementById('label2');
+
+    if (stage === 1) {
+      dot1.classList.add('active'); dot2.classList.remove('active');
+      label1.classList.add('active'); label2.classList.remove('active');
+    } else {
+      dot1.classList.remove('active'); dot2.classList.add('active');
+      label1.classList.remove('active'); label2.classList.add('active');
+    }
+  }
+
+  function scrollToBottom() {
+    const m = document.getElementById('messages');
+    m.scrollTop = m.scrollHeight;
+  }
+
+  // ── Message rendering ─────────────────────────────────────────────────────
+
+  function hideWelcome() {
+    const w = document.getElementById('welcome');
+    if (w) w.remove();
+    hasMessages = true;
+  }
+
+  function addStageDivider(label) {
+    const div = document.createElement('div');
+    div.className = 'stage-divider';
+    div.innerHTML = `<span>${label}</span>`;
+    document.getElementById('messages').appendChild(div);
+  }
+
+  function addMessage(role, text, meta = '', extraClass = '') {
+    hideWelcome();
+    const msg = document.createElement('div');
+    msg.className = `message ${role} ${extraClass}`;
+
+    const avatar = document.createElement('div');
+    avatar.className = `avatar ${role}`;
+    avatar.textContent = role === 'agent' ? 'T' : userId.slice(0, 2).toUpperCase();
+
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+
+    if (meta) {
+      const metaEl = document.createElement('div');
+      metaEl.className = 'bubble-meta';
+      metaEl.textContent = meta;
+      bubble.appendChild(metaEl);
+    }
+
+    const content = document.createElement('div');
+    content.innerHTML = text
+      .replace(/\n/g, '<br>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/RECOMMENDATION:(.*)/g, '<strong>✓ Recommendation:$1</strong>');
+    bubble.appendChild(content);
+
+    msg.appendChild(avatar);
+    msg.appendChild(bubble);
+    document.getElementById('messages').appendChild(msg);
+    scrollToBottom();
+  }
+
+  function showTyping() {
+    hideWelcome();
+    const typing = document.createElement('div');
+    typing.className = 'message agent';
+    typing.id = 'typing';
+
+    const avatar = document.createElement('div');
+    avatar.className = 'avatar agent';
+    avatar.textContent = 'T';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'typing';
+    bubble.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+
+    typing.appendChild(avatar);
+    typing.appendChild(bubble);
+    document.getElementById('messages').appendChild(typing);
+    scrollToBottom();
+  }
+
+  function removeTyping() {
+    const t = document.getElementById('typing');
+    if (t) t.remove();
+  }
+
+  function updateMemoryList(memories) {
+    const list = document.getElementById('memoryList');
+    if (!memories || memories.length === 0) return;
+    list.innerHTML = '';
+    memories.slice(0, 6).forEach(m => {
+      const li = document.createElement('li');
+      li.className = 'memory-item';
+      li.textContent = typeof m === 'string' ? m : m.memory || JSON.stringify(m);
+      list.appendChild(li);
+    });
+  }
+
+  // ── Send message ──────────────────────────────────────────────────────────
+
+  async function sendMessage() {
+    if (isLoading) return;
+    const input = document.getElementById('messageInput');
+    const text = input.value.trim();
+    if (!text) return;
+
+    input.value = '';
+    input.style.height = 'auto';
+    document.getElementById('sendBtn').disabled = true;
+    isLoading = true;
+
+    // Show user message
+    const userMeta = currentState === 'awaiting_confirmation'
+      ? 'Confirming preferences'
+      : 'Your request';
+    addMessage('user', text, userMeta);
+
+    // Stage divider before first agent response
+    if (currentState === 'awaiting_query' && !hasMessages) {
+      // already shown
+    }
+
+    showTyping();
+
+    try {
+      const res = await fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: text,
+          session_id: sessionId,
+          user_id: userId,
+        }),
+      });
+
+      const data = await res.json();
+      removeTyping();
+
+      if (data.session_id) sessionId = data.session_id;
+      if (data.state) currentState = data.state;
+
+      // Stage dividers
+      if (data.stage === 1) {
+        addStageDivider('Step 1 — Style Memory');
+        addMessage('agent', data.reply, 'Preferences found', 'confirmation');
+        document.getElementById('confirmBar').style.display = 'flex';
+        updateStageUI(2);
+      } else if (data.stage === 2) {
+        addStageDivider('Step 2 — Catalog Search');
+        addMessage('agent', data.reply, 'Recommendation', 'recommendation');
+        document.getElementById('confirmBar').style.display = 'none';
+        updateStageUI(1);
+        // Fetch updated memories
+        fetchMemories();
+      }
+
+    } catch (err) {
+      removeTyping();
+      addMessage('agent', 'Something went wrong. Please try again.', 'Error');
+      console.error(err);
+    }
+
+    isLoading = false;
+    document.getElementById('sendBtn').disabled = false;
+    document.getElementById('messageInput').focus();
+  }
+
+  async function fetchMemories() {
+    // We don't have a dedicated memories endpoint, but we can show a placeholder
+    // In production: add GET /memories/{user_id} endpoint
+    document.getElementById('memoryList').innerHTML = `
+      <li class="memory-item">Preferences updated from this session.</li>`;
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  document.getElementById('messageInput').focus();
+</script>
+</body>
+</html>
